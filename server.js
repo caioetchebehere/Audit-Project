@@ -4,6 +4,8 @@ const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'pr
 // Force Vercel mode if we detect Vercel environment
 if (isVercel) {
   console.log('FORCING VERCEL MODE - File system operations disabled');
+  console.log('__dirname:', __dirname);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
 }
 
 // Completely disable file system operations in Vercel

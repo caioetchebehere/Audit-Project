@@ -12,11 +12,20 @@ const router = express.Router();
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+    // Check if running on Vercel
+    const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
+    
+    if (isVercel) {
+      // For Vercel, use a safe path
+      cb(null, '/tmp');
+    } else {
+      // For local development
+      const uploadPath = path.join(__dirname, '../uploads');
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
     }
-    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}-${file.originalname}`;
