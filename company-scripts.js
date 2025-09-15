@@ -341,7 +341,7 @@ function showNotification(message, type = 'info') {
 
 // Go back to dashboard
 function goBack() {
-    window.location.href = 'Untitled-1.html';
+    window.location.href = 'main.html';
 }
 
 // Add loading animation
@@ -371,7 +371,7 @@ function showLoginModal() {
         window.parent.showLoginModal();
     } else {
         // If we're not in an iframe, redirect to main page
-        window.location.href = 'Untitled-1.html';
+        window.location.href = 'main.html';
     }
 }
 

@@ -108,7 +108,7 @@ server {
     # Serve static files
     location / {
         root /path/to/audit-dashboard;
-        index Untitled-1.html;
+        index main.html;
         try_files $uri $uri/ =404;
     }
 

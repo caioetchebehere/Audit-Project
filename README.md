@@ -1,4 +1,3 @@
-# Audit-Project
 # Audit Dashboard
 
 A comprehensive audit management system for tracking compliance across multiple companies (Carol, Grand Vision, and SunglassHut).
@@ -53,7 +52,7 @@ A comprehensive audit management system for tracking compliance across multiple 
    ```
 
 4. **Open the frontend**
-   - Open `Untitled-1.html` in your browser
+   - Open `main.html` in your browser
    - Or serve it with a local server (recommended)
 
 ### Default Admin Credentials
@@ -65,7 +64,7 @@ A comprehensive audit management system for tracking compliance across multiple 
 ```
 audit-dashboard/
 ├── frontend/
-│   ├── Untitled-1.html          # Main dashboard
+│   ├── main.html                # Main dashboard
 │   ├── carol.html               # Carol company page
 │   ├── grand-vision.html        # Grand Vision company page
 │   ├── sunglass-hut.html        # SunglassHut company page
@@ -251,7 +250,6 @@ For issues and questions:
 1. Check the troubleshooting section
 2. Review the API documentation
 3. Create an issue in the repository
-
 
 
 
