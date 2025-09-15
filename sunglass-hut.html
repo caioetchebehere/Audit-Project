@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunglassHut - Upload Information</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="company-styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+                <h1>SunglassHut - Upload Information</h1>
+            </div>
+        </header>
+
+        <!-- Company Status Section -->
+        <section class="company-status">
+            <div class="status-card">
+                <h2>Current Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Lojas:</span>
+                        <span class="status-value lojas">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Audit:</span>
+                        <span class="status-value last-audit-date">N/A</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="upload-card">
+                <h2>Upload New Information</h2>
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="fileInput">Selecione o arquivo:</label>
+                        <input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv" required>
+                        <div class="file-info">Formatos suportados:PDF, DOC, DOCX, XLS, XLSX, CSV</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="auditDate">Data da Auditoria:</label>
+                        <input type="date" id="auditDate" name="auditDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="branchNumber">Número Filial:</label>
+                        <input type="text" id="branchNumber" name="branchNumber" placeholder="Ex: 001, 002, 003..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="3" placeholder="Descrição..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="priority">Estatus:</label>
+                        <select id="priority" name="priority">
+                            <option value="aprovada">Aprovada</option>
+                            <option value="aprovada-com-aviso" selected>Aprovada com aviso</option>
+                            <option value="reprovada">Reprovada</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Recent Uploads Section -->
+        <section class="recent-uploads">
+            <div class="uploads-card">
+                <h2>Recent Uploads (Last 3)</h2>
+                <div class="uploads-list">
+                    <div class="empty-uploads">
+                        <p>Nenhum upload realizado ainda.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="company-scripts.js"></script>
+</body>
+</html>

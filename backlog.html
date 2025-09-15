@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Backlog - All Brands</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="company-styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+                <h1>Audit Backlog - All Brands</h1>
+            </div>
+        </header>
+
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <div class="filter-card">
+                <h2>Filter Audits</h2>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="brandFilter">Brand:</label>
+                        <select id="brandFilter" onchange="filterAudits()">
+                            <option value="all">All Brands</option>
+                            <option value="carol">Carol</option>
+                            <option value="grand-vision">Grand Vision</option>
+                            <option value="sunglass-hut">SunglassHut</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter" onchange="filterAudits()">
+                            <option value="all">All Statuses</option>
+                            <option value="aprovada">Aprovada</option>
+                            <option value="aprovada-com-aviso">Aprovada com aviso</option>
+                            <option value="reprovada">Reprovada</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateFilter">Date Range:</label>
+                        <input type="date" id="dateFrom" onchange="filterAudits()" placeholder="From">
+                        <input type="date" id="dateTo" onchange="filterAudits()" placeholder="To">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                        <button class="btn btn-primary" onclick="refreshAudits()">Refresh</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Audits</h3>
+                    <span class="stat-number" id="totalAudits">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Aprovadas</h3>
+                    <span class="stat-number aprovada" id="aprovadasCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Aprovadas com Aviso</h3>
+                    <span class="stat-number aprovada-com-aviso" id="aprovadasComAvisoCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Reprovadas</h3>
+                    <span class="stat-number reprovada" id="reprovadasCount">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Audits List Section -->
+        <section class="audits-section">
+            <div class="audits-card">
+                <h2>All Audits</h2>
+                <div class="audits-list" id="auditsList">
+                    <div class="empty-audits">
+                        <p>Nenhuma auditoria encontrada.</p>
+                        <p>Faça upload de auditorias para vê-las aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="backlog-scripts.js"></script>
+</body>
+</html>

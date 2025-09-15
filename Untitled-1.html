@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditorias Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <h1>Auditorias</h1>
+                <div class="admin-controls">
+                    <button class="btn btn-primary" onclick="goToBacklog()">View Backlog</button>
+                    <button id="adminLoginBtn" class="btn btn-secondary" onclick="showLoginModal()">Login Admin</button>
+                    <button id="adminLogoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Company Cards Section -->
+        <section class="companies-section">
+            <div class="company-card" data-company="carol">
+                <h2>Carol</h2>
+                <div class="company-stats">
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Lojas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="company-card" data-company="grand-vision">
+                <h2>Grand Vision</h2>
+                <div class="company-stats">
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Lojas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="company-card" data-company="sunglass-hut">
+                <h2>SunglassHut</h2>
+                <div class="company-stats">
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Lojas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Section -->
+        <section class="bottom-section">
+            <!-- Pie Chart Section -->
+            <div class="chart-section">
+                <h3>Análise</h3>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                    <div id="emptyChartMessage" class="empty-chart-message">
+                        <p>Nenhuma auditoria realizada ainda.</p>
+                        <p>Faça upload de auditorias para ver os dados aqui.</p>
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #FF6384;"></span>
+                        <span>Reprovadas</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #FFCE56;"></span>
+                        <span>Aprovadas com aviso</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #4BC0C0;"></span>
+                        <span>Aprovadas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Center Section -->
+            <div class="news-section">
+                <h3>Central de Noticias</h3>
+                <div class="news-content">
+                    <div class="empty-news">
+                        <p>Nenhuma notícia disponível no momento.</p>
+                        <button id="addNewsBtn" class="btn btn-primary" onclick="addNewNews()" style="display: none;">Adicionar Nova Notícia</button>
+                        <button id="loginToAddBtn" class="btn btn-primary" onclick="showLoginModal()">Login para Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Requirements Section -->
+        <section class="requirements-section">
+            <h3>Checklist</h3>
+            <div class="requirements-grid">
+                <div class="requirement-item">
+                    <div class="requirement-icon">🖥️</div>
+                    <div class="requirement-content">
+                        <h4>Processador</h4>
+                        <p>Intel Core i5 or AMD Ryzen 5 equivalent or higher recommended for optimal performance</p>
+                    </div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon">💾</div>
+                    <div class="requirement-content">
+                        <h4>RAM</h4>
+                        <p>Mínimo de 8 GB de RAM para operação rápida e multitarefa</p>
+                    </div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon">💿</div>
+                    <div class="requirement-content">
+                        <h4>SSD</h4>
+                        <p>SSD com pelo menos 256 GB de espaço disponível</p>
+                    </div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon">🌐</div>
+                    <div class="requirement-content">
+                        <h4>Internet</h4>
+                        <p>Conexão de banda larga estável com velocidade mínima de download de 40 Mbps necessária</p>
+                    </div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon">🪟</div>
+                    <div class="requirement-content">
+                        <h4>Sistema Operacional</h4>
+                        <p>Windows 11 Pro recomendado para melhor compatibilidade e performance</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login Administrativo</h2>
+                <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" name="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="loginPassword" name="loginPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Mostrar senha">
+                                <span id="passwordToggleIcon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeLoginModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="newsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Nova Notícia</h2>
+                <button class="close-btn" onclick="closeNewsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newsForm" class="news-form">
+                    <div class="form-group">
+                        <label for="newsTitle">Título da Notícia:</label>
+                        <input type="text" id="newsTitle" name="newsTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newsSummary">Resumo da Notícia:</label>
+                        <textarea id="newsSummary" name="newsSummary" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="newsDate">Data:</label>
+                        <input type="date" id="newsDate" name="newsDate" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeNewsModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Adicionar Notícia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+/* Company Page Specific Styles */
+
+/* Header with back button */
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Company Status Section */
+.company-status {
+    margin-bottom: 30px;
+}
+
+.status-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #667eea;
+}
+
+.status-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+    transition: transform 0.3s ease;
+}
+
+.status-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.status-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.status-value.compliance {
+    color: #28a745;
+}
+
+.status-value.issues {
+    color: #ffc107;
+}
+
+.status-value.critical {
+    color: #dc3545;
+}
+
+.status-value.minor {
+    color: #17a2b8;
+}
+
+.status-value.lojas {
+    color: #667eea;
+}
+
+/* Upload Section */
+.upload-section {
+    margin-bottom: 30px;
+}
+
+.upload-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #28a745;
+}
+
+.upload-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.file-info {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Recent Uploads Section */
+.recent-uploads {
+    margin-bottom: 30px;
+}
+
+.uploads-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #17a2b8;
+}
+
+.uploads-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.uploads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.upload-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #17a2b8;
+    transition: transform 0.3s ease;
+}
+
+.upload-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.upload-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.upload-filename {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.upload-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.upload-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.upload-type {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.upload-priority {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.upload-priority.aprovada {
+    background: #d4edda;
+    color: #155724;
+}
+
+.upload-priority.aprovada-com-aviso {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.upload-priority.reprovada {
+    background: #f8d7da;
+    color: #721c24;
+    animation: pulse 2s infinite;
+}
+
+/* Branch number styling */
+.upload-branch {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .upload-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .upload-meta {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+/* Backlog Page Specific Styles */
+.filter-section {
+    margin-bottom: 30px;
+}
+
+.filter-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #6f42c1;
+}
+
+.filter-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.filter-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+}
+
+/* Statistics Section */
+.stats-section {
+    margin-bottom: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-number.aprovada {
+    color: #28a745;
+}
+
+.stat-number.aprovada-com-aviso {
+    color: #ffc107;
+}
+
+.stat-number.reprovada {
+    color: #dc3545;
+}
+
+/* Audits Section */
+.audits-section {
+    margin-bottom: 30px;
+}
+
+.audits-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #17a2b8;
+}
+
+.audits-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.audits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.audit-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid #17a2b8;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.audit-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.company-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+}
+
+.company-badge.carol {
+    background: #e83e8c;
+}
+
+.company-badge.grand-vision {
+    background: #6f42c1;
+}
+
+.company-badge.sunglass-hut {
+    background: #fd7e14;
+}
+
+.audit-date {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.audit-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.audit-info {
+    flex: 1;
+}
+
+.audit-filename {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.audit-branch {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.audit-description {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+.audit-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.audit-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.audit-status.aprovada {
+    background: #d4edda;
+    color: #155724;
+}
+
+.audit-status.aprovada-com-aviso {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.audit-status.reprovada {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.audit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    min-width: auto;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.empty-audits {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.empty-audits p {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.empty-uploads {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .status-card,
+    .upload-card,
+    .uploads-card,
+    .filter-card,
+    .audits-card {
+        padding: 20px;
+    }
+    
+    .status-item,
+    .upload-item {
+        padding: 12px;
+    }
+    
+    .filter-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .audit-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .audit-meta {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 10px;
+    }
+}
