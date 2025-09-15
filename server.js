@@ -5,8 +5,18 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 
-// Check if running on Vercel
-const isVercel = process.env.VERCEL || process.env.VERCEL_ENV || process.env.NOW_REGION;
+// Check if running on Vercel - detect by path
+const isVercel = __dirname.includes('/var/task');
+
+// Debug logging
+console.log('Vercel detection:', {
+  VERCEL: process.env.VERCEL,
+  VERCEL_ENV: process.env.VERCEL_ENV,
+  NOW_REGION: process.env.NOW_REGION,
+  __dirname: __dirname,
+  isVercel: isVercel,
+  NODE_ENV: process.env.NODE_ENV
+});
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -42,13 +52,19 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static file serving for uploads (only in non-Vercel environments)
 if (!isVercel) {
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  try {
+    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-  // Create uploads directory if it doesn't exist
-  const uploadsDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (error) {
+    console.log('File system operations skipped:', error.message);
   }
+} else {
+  console.log('Skipping file system operations for Vercel environment');
 }
 
 // Routes
