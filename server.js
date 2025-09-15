@@ -6,6 +6,9 @@ if (isVercel) {
   console.log('FORCING VERCEL MODE - File system operations disabled');
 }
 
+// Completely disable file system operations in Vercel
+const SAFE_MODE = isVercel;
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -20,6 +23,7 @@ console.log('Vercel detection:', {
   NOW_REGION: process.env.NOW_REGION,
   __dirname: __dirname,
   isVercel: isVercel,
+  SAFE_MODE: SAFE_MODE,
   NODE_ENV: process.env.NODE_ENV
 });
 
@@ -56,7 +60,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static file serving for uploads (only in non-Vercel environments)
-if (!isVercel) {
+if (!SAFE_MODE) {
   try {
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -69,7 +73,7 @@ if (!isVercel) {
     console.log('File system operations skipped:', error.message);
   }
 } else {
-  console.log('Skipping file system operations for Vercel environment');
+  console.log('SAFE MODE: Skipping file system operations for Vercel environment');
   // For Vercel, we'll just return a 404 for uploads
   app.use('/uploads', (req, res) => {
     res.status(404).json({ error: 'File not found' });
@@ -88,7 +92,8 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    environment: isVercel ? 'vercel' : 'local'
+    environment: SAFE_MODE ? 'vercel' : 'local',
+    safeMode: SAFE_MODE
   });
 });
 
@@ -107,7 +112,7 @@ app.use('*', (req, res) => {
 });
 
 // Initialize database and start server
-if (isVercel) {
+if (SAFE_MODE) {
   // For Vercel, just initialize the database without starting a server
   initializeDatabase()
     .then(() => {
