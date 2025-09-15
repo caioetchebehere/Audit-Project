@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
-const { getDatabase } = require('../database/init');
+const { getDatabase, addAudit, getAudits, getCompanyStats } = require(process.env.VERCEL ? '../database/vercel-init' : '../database/init');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();

@@ -7,12 +7,12 @@ const fs = require('fs');
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const auditRoutes = require('./routes/audits');
+const auditRoutes = require(process.env.VERCEL ? './routes/vercel-audits' : './routes/audits');
 const newsRoutes = require('./routes/news');
 const companyRoutes = require('./routes/companies');
 
 // Import database initialization
-const { initializeDatabase } = require('./database/init');
+const { initializeDatabase } = require(process.env.VERCEL ? './database/vercel-init' : './database/init');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

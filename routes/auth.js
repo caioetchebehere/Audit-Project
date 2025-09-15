@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const { getDatabase } = require('../database/init');
+const { getDatabase, findUserByEmail } = require(process.env.VERCEL ? '../database/vercel-init' : '../database/init');
 
 const router = express.Router();
 
@@ -24,50 +24,51 @@ router.post('/login', [
     }
 
     const { email, password } = req.body;
-    const db = getDatabase();
 
-    // Find user by email
-    db.get(
-      'SELECT * FROM users WHERE email = ?',
-      [email],
-      async (err, user) => {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ error: 'Internal server error' });
-        }
-
-        if (!user) {
-          return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        // Check password
-        const isValidPassword = await bcrypt.compare(password, user.password_hash);
-        if (!isValidPassword) {
-          return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign(
-          { 
-            userId: user.id, 
-            email: user.email, 
-            role: user.role 
-          },
-          JWT_SECRET,
-          { expiresIn: '24h' }
-        );
-
-        res.json({
-          message: 'Login successful',
-          token,
-          user: {
-            id: user.id,
-            email: user.email,
-            role: user.role
-          }
+    try {
+      // Find user by email
+      const user = process.env.VERCEL ? findUserByEmail(email) : await new Promise((resolve, reject) => {
+        const db = getDatabase();
+        db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+          if (err) reject(err);
+          else resolve(user);
         });
+      });
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
       }
-    );
+
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          userId: user.id, 
+          email: user.email, 
+          role: user.role 
+        },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.json({
+        message: 'Login successful',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        }
+      });
+    } catch (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
