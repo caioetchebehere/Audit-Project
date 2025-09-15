@@ -1,12 +1,17 @@
+// Check if running on Vercel FIRST - before any other imports
+const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
+
+// Force Vercel mode if we detect Vercel environment
+if (isVercel) {
+  console.log('FORCING VERCEL MODE - File system operations disabled');
+}
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
-
-// Check if running on Vercel - detect by path
-const isVercel = __dirname.includes('/var/task');
 
 // Debug logging
 console.log('Vercel detection:', {
@@ -65,6 +70,10 @@ if (!isVercel) {
   }
 } else {
   console.log('Skipping file system operations for Vercel environment');
+  // For Vercel, we'll just return a 404 for uploads
+  app.use('/uploads', (req, res) => {
+    res.status(404).json({ error: 'File not found' });
+  });
 }
 
 // Routes
@@ -78,7 +87,8 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
+    environment: isVercel ? 'vercel' : 'local'
   });
 });
 
@@ -122,4 +132,3 @@ if (isVercel) {
 }
 
 module.exports = app;
-
