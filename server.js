@@ -59,8 +59,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Static file serving for uploads (only in non-Vercel environments)
+// Static file serving for uploads - COMPLETELY SAFE VERSION
 if (!SAFE_MODE) {
+  // Only for local development
   try {
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -73,6 +74,7 @@ if (!SAFE_MODE) {
     console.log('File system operations skipped:', error.message);
   }
 } else {
+  // For Vercel - NO FILE SYSTEM OPERATIONS AT ALL
   console.log('SAFE MODE: Skipping file system operations for Vercel environment');
   // For Vercel, we'll just return a 404 for uploads
   app.use('/uploads', (req, res) => {
