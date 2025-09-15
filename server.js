@@ -8,8 +8,8 @@ const fs = require('fs');
 // Import routes
 const authRoutes = require('./routes/auth');
 const auditRoutes = require(process.env.VERCEL ? './routes/vercel-audits' : './routes/audits');
-const newsRoutes = require('./routes/news');
-const companyRoutes = require('./routes/companies');
+const newsRoutes = require(process.env.VERCEL ? './routes/vercel-news' : './routes/news');
+const companyRoutes = require(process.env.VERCEL ? './routes/vercel-companies' : './routes/companies');
 
 // Import database initialization
 const { initializeDatabase } = require(process.env.VERCEL ? './database/vercel-init' : './database/init');
@@ -76,17 +76,29 @@ app.use('*', (req, res) => {
 });
 
 // Initialize database and start server
-initializeDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+if (process.env.VERCEL) {
+  // For Vercel, just initialize the database without starting a server
+  initializeDatabase()
+    .then(() => {
+      console.log('Vercel function initialized successfully');
+    })
+    .catch(err => {
+      console.error('Failed to initialize database:', err);
     });
-  })
-  .catch(err => {
-    console.error('Failed to initialize database:', err);
-    process.exit(1);
-  });
+} else {
+  // For local development, start the server
+  initializeDatabase()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+      });
+    })
+    .catch(err => {
+      console.error('Failed to initialize database:', err);
+      process.exit(1);
+    });
+}
 
 module.exports = app;
 

@@ -80,6 +80,10 @@ function getAudits(filters = {}) {
   return filteredAudits.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
+function getNews() {
+  return db.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
 function addNews(news) {
   const newNews = {
     id: db.news.length + 1,
@@ -89,10 +93,6 @@ function addNews(news) {
   };
   db.news.push(newNews);
   return newNews;
-}
-
-function getNews() {
-  return db.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
 function getCompanyStats() {
@@ -120,7 +120,7 @@ module.exports = {
   findUserByEmail,
   addAudit,
   getAudits,
-  addNews,
   getNews,
+  addNews,
   getCompanyStats
 };
