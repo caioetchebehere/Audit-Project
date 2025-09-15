@@ -2,12 +2,21 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
 const { getDatabase, addAudit, getAudits, getCompanyStats } = require(process.env.VERCEL ? '../database/vercel-init' : '../database/init');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Diretório temporário permitido no Vercel
+const uploadDir = path.join(os.tmpdir(), 'uploads');
+
+// Cria a pasta se ela não existir
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -16,8 +25,8 @@ const storage = multer.diskStorage({
     const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
     
     if (isVercel) {
-      // For Vercel, use a safe path
-      cb(null, '/tmp');
+      // For Vercel, use the temporary directory
+      cb(null, uploadDir);
     } else {
       // For local development
       const uploadPath = path.join(__dirname, '../uploads');
