@@ -242,12 +242,14 @@ router.delete('/:id', authenticateToken, (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
       }
 
-      // Delete physical file
-      fs.unlink(audit.file_path, (err) => {
-        if (err) {
-          console.error('File deletion error:', err);
-        }
-      });
+      // Delete physical file (only if not in Vercel or if file is in temp directory)
+      if (!isVercel || audit.file_path.startsWith(os.tmpdir())) {
+        fs.unlink(audit.file_path, (err) => {
+          if (err) {
+            console.error('File deletion error:', err);
+          }
+        });
+      }
 
       res.json({ message: 'Audit deleted successfully' });
     });
