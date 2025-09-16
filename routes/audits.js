@@ -11,7 +11,7 @@ const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
 // Check if running on Vercel
-const isVercel = __dirname.includes('/tmp') || process.env.NODE_ENV === 'production';
+const isVercel = __dirname.includes('/var/task') || process.env.VERCEL || process.env.NODE_ENV === 'production';
 
 // Diretório temporário permitido no Vercel
 const uploadDir = path.join(os.tmpdir(), 'uploads');

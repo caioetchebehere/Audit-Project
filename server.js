@@ -1,5 +1,5 @@
 // Check if running on Vercel FIRST - before any other imports
-const isVercel = __dirname.includes('/tmp') || process.env.NODE_ENV === 'production';
+const isVercel = __dirname.includes('/var/task') || process.env.VERCEL || process.env.NODE_ENV === 'production';
 
 // Force Vercel mode if we detect Vercel environment
 if (isVercel) {
@@ -26,7 +26,9 @@ console.log('Vercel detection:', {
   __dirname: __dirname,
   isVercel: isVercel,
   SAFE_MODE: SAFE_MODE,
-  NODE_ENV: process.env.NODE_ENV
+  NODE_ENV: process.env.NODE_ENV,
+  'dirname includes /var/task': __dirname.includes('/var/task'),
+  'process.env.VERCEL': process.env.VERCEL
 });
 
 // Import routes
