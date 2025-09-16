@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const os = require('os');
 const { body, validationResult } = require('express-validator');
 const { getAudits, addAudit, getCompanyStats } = require('../database/vercel-init');
 const { authenticateToken } = require('../middleware/auth');
@@ -70,11 +72,12 @@ router.post('/upload', authenticateToken, [
     const { company_id, audit_date, branch_number, description, status } = req.body;
 
     // For Vercel, we'll simulate file upload (no actual file storage)
+    const tempUploadDir = path.join(os.tmpdir(), 'uploads');
     const audit = addAudit({
       company_id: parseInt(company_id),
       filename: `audit_${Date.now()}.pdf`, // Simulated filename
       original_filename: `audit_${Date.now()}.pdf`,
-      file_path: `/uploads/audit_${Date.now()}.pdf`,
+      file_path: path.join(tempUploadDir, `audit_${Date.now()}.pdf`),
       file_size: 1024, // Simulated file size
       file_type: 'application/pdf',
       audit_date,
