@@ -1,6 +1,7 @@
 // Check if running on Vercel FIRST - before any other imports
 const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
 
+
 // Force Vercel mode if we detect Vercel environment
 if (isVercel) {
   console.log('FORCING VERCEL MODE - File system operations disabled');
