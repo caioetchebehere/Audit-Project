@@ -10,20 +10,22 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Check if running on Vercel
+const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
+
 // Diretório temporário permitido no Vercel
 const uploadDir = path.join(os.tmpdir(), 'uploads');
 
-// Cria a pasta se ela não existir
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Cria a pasta se ela não existir (only if not in Vercel or if using temp directory)
+if (!isVercel || uploadDir.startsWith(os.tmpdir())) {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Check if running on Vercel
-    const isVercel = __dirname.includes('/var/task') || process.env.NODE_ENV === 'production';
-    
     if (isVercel) {
       // For Vercel, use the temporary directory
       cb(null, uploadDir);
