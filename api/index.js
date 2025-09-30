@@ -41,6 +41,22 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Specific routes for static files
+app.get('/styles.css', (req, res) => {
+  console.log('Serving styles.css');
+  res.sendFile(path.join(__dirname, '..', 'styles.css'));
+});
+
+app.get('/scripts.js', (req, res) => {
+  console.log('Serving scripts.js');
+  res.sendFile(path.join(__dirname, '..', 'scripts.js'));
+});
+
+app.get('/js/api.js', (req, res) => {
+  console.log('Serving js/api.js');
+  res.sendFile(path.join(__dirname, '..', 'js', 'api.js'));
+});
+
 // API routes with error handling
 try {
   app.use('/api/auth', require('../routes/auth'));
@@ -52,10 +68,45 @@ try {
   console.error('Error loading API routes:', error);
 }
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static files (CSS, JS, images, etc.)
+app.use(express.static(path.join(__dirname, '..'), {
+  index: false, // Don't serve index.html automatically
+  setHeaders: (res, path) => {
+    console.log('Serving static file:', path);
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
-// Catch-all handler for SPA
+// Serve specific HTML files
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
+app.get('/main.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'main.html'));
+});
+
+app.get('/backlog.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'backlog.html'));
+});
+
+app.get('/carol.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'carol.html'));
+});
+
+app.get('/sunglass-hut.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'sunglass-hut.html'));
+});
+
+app.get('/grand-vision.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'grand-vision.html'));
+});
+
+// Catch-all handler for SPA (must be last)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
