@@ -265,6 +265,11 @@ function deleteAudit(auditId) {
     // Update lojas count for the specific company
     updateCompanyLojasCount(audit.company);
     
+    // Refresh main page counts if possible
+    if (window.parent && window.parent.refreshAllLojasCounts) {
+        window.parent.refreshAllLojasCounts();
+    }
+    
     // Refresh display
     filteredAudits = [...allAudits];
     displayAudits();
@@ -322,6 +327,11 @@ function deleteAllAudits() {
     // Clear all audits from memory
     allAudits = [];
     filteredAudits = [];
+    
+    // Refresh main page counts if possible
+    if (window.parent && window.parent.refreshAllLojasCounts) {
+        window.parent.refreshAllLojasCounts();
+    }
     
     // Refresh display
     displayAudits();

@@ -21,6 +21,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Check admin status
     await checkAdminStatus();
     
+    // Refresh data when page becomes visible (when returning from other pages)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            console.log('Page became visible, refreshing lojas counts...');
+            loadLojasCountsFromStorage();
+        }
+    });
+    
     // Simulate real-time updates
     simulateRealTimeUpdates();
 });
@@ -210,6 +218,12 @@ function updateCompanyLojas(company, newCount) {
     }
 }
 
+// Global function to refresh all lojas counts (called from other pages)
+function refreshAllLojasCounts() {
+    console.log('Refreshing all lojas counts from main page...');
+    loadLojasCountsFromStorage();
+}
+
 // Initialize data from API
 async function initializeData() {
     try {
@@ -225,8 +239,8 @@ async function initializeData() {
         console.log('Data loaded successfully from API');
     } catch (error) {
         console.error('Failed to load data from API:', error);
-        // Fallback to localStorage
-        initializeLojasCounts();
+        // Fallback to localStorage - load actual stored counts
+        loadLojasCountsFromStorage();
     }
 }
 
@@ -353,7 +367,26 @@ function addNewsItemToDOM(newsItem) {
     }, 100);
 }
 
-// Initialize Lojas counts from localStorage (fallback)
+// Load Lojas counts from localStorage (fallback when API fails)
+function loadLojasCountsFromStorage() {
+    const companies = ['carol', 'grand-vision', 'sunglass-hut'];
+    
+    companies.forEach(company => {
+        // Load actual stored count from localStorage
+        const storedCount = parseInt(localStorage.getItem(`${company}_lojas`) || '0');
+        const companyCard = document.querySelector(`[data-company="${company}"]`);
+        
+        if (companyCard) {
+            const lojasValue = companyCard.querySelector('.stat-value');
+            if (lojasValue) {
+                lojasValue.textContent = storedCount.toString();
+                console.log(`Loaded ${company} lojas count: ${storedCount}`);
+            }
+        }
+    });
+}
+
+// Initialize Lojas counts (reset to zero - used for testing)
 function initializeLojasCounts() {
     const companies = ['carol', 'grand-vision', 'sunglass-hut'];
     

@@ -274,6 +274,11 @@ function updateLojasCount() {
     if (window.parent && window.parent.updateCompanyLojas) {
         window.parent.updateCompanyLojas(companyName, newCount);
     }
+    
+    // Also refresh all counts on main page
+    if (window.parent && window.parent.refreshAllLojasCounts) {
+        window.parent.refreshAllLojasCounts();
+    }
 }
 
 // Get current company name
