@@ -42,6 +42,20 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Test CSS file existence
+app.get('/api/test-css', (req, res) => {
+  const fs = require('fs');
+  const stylesPath = path.join(__dirname, '..', 'styles.css');
+  const companyStylesPath = path.join(__dirname, '..', 'company-styles.css');
+  
+  res.json({
+    styles_css_exists: fs.existsSync(stylesPath),
+    company_styles_css_exists: fs.existsSync(companyStylesPath),
+    styles_path: stylesPath,
+    company_styles_path: companyStylesPath
+  });
+});
+
 // API routes (simplified for Vercel)
 try {
   app.use('/api/auth', require('../routes/auth'));
@@ -71,12 +85,74 @@ try {
   console.error('Error loading company routes:', error);
 }
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '..')));
+// Serve CSS files with proper headers
+app.get('/styles.css', (req, res) => {
+  console.log('Serving styles.css');
+  res.setHeader('Content-Type', 'text/css');
+  res.sendFile(path.join(__dirname, '..', 'styles.css'));
+});
 
-// Serve index.html for root path
+app.get('/company-styles.css', (req, res) => {
+  console.log('Serving company-styles.css');
+  res.setHeader('Content-Type', 'text/css');
+  res.sendFile(path.join(__dirname, '..', 'company-styles.css'));
+});
+
+// Serve JavaScript files
+app.get('/scripts.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '..', 'scripts.js'));
+});
+
+app.get('/company-scripts.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '..', 'company-scripts.js'));
+});
+
+app.get('/backlog-scripts.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '..', 'backlog-scripts.js'));
+});
+
+app.get('/js/api.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '..', 'js', 'api.js'));
+});
+
+// Serve static files (images, etc.)
+app.use(express.static(path.join(__dirname, '..'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
+// Serve HTML files
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
+app.get('/main.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'main.html'));
+});
+
+app.get('/carol.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'carol.html'));
+});
+
+app.get('/sunglass-hut.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'sunglass-hut.html'));
+});
+
+app.get('/grand-vision.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'grand-vision.html'));
+});
+
+app.get('/backlog.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'backlog.html'));
 });
 
 // Catch-all handler
