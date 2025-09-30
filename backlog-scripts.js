@@ -122,7 +122,7 @@ function createAuditItem(audit) {
                 <span class="audit-status ${audit.status}">${getStatusLabel(audit.status)}</span>
                 <div class="audit-actions">
                     <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails('${audit.id}')">Ver Detalhes</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteAudit('${audit.id}')" style="display: none;">Excluir</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAudit('${audit.id}')" title="Excluir auditoria">🗑️ Excluir</button>
                 </div>
             </div>
         </div>
@@ -240,7 +240,14 @@ function viewAuditDetails(auditId) {
 
 // Delete audit
 function deleteAudit(auditId) {
-    if (!confirm('Tem certeza que deseja excluir esta auditoria?')) {
+    // Find the audit to get company info
+    const audit = allAudits.find(a => a.id === auditId);
+    if (!audit) {
+        showNotification('Auditoria não encontrada.', 'error');
+        return;
+    }
+    
+    if (!confirm(`Tem certeza que deseja excluir esta auditoria?\n\nArquivo: ${audit.filename}\nEmpresa: ${audit.companyName}\nData: ${formatDate(audit.auditDate)}`)) {
         return;
     }
     
@@ -255,12 +262,72 @@ function deleteAudit(auditId) {
         localStorage.setItem(`${company}_audits`, JSON.stringify(updatedAudits));
     });
     
+    // Update lojas count for the specific company
+    updateCompanyLojasCount(audit.company);
+    
     // Refresh display
     filteredAudits = [...allAudits];
     displayAudits();
     updateStatistics();
     
-    showNotification('Auditoria excluída com sucesso!', 'success');
+    showNotification(`Auditoria "${audit.filename}" excluída com sucesso!`, 'success');
+}
+
+// Update lojas count for a specific company
+function updateCompanyLojasCount(companyName) {
+    const lojasKey = `${companyName}_lojas`;
+    const currentCount = parseInt(localStorage.getItem(lojasKey) || '0');
+    const newCount = Math.max(0, currentCount - 1); // Don't go below 0
+    
+    localStorage.setItem(lojasKey, newCount.toString());
+    
+    console.log(`Updated ${companyName} lojas count: ${currentCount} -> ${newCount}`);
+    
+    // Update the main dashboard if possible
+    if (window.parent && window.parent.updateCompanyLojas) {
+        window.parent.updateCompanyLojas(companyName, newCount);
+    }
+}
+
+// Delete all audits
+function deleteAllAudits() {
+    if (allAudits.length === 0) {
+        showNotification('Nenhuma auditoria para excluir.', 'info');
+        return;
+    }
+    
+    const totalCount = allAudits.length;
+    const companyBreakdown = {};
+    
+    // Count audits per company
+    allAudits.forEach(audit => {
+        companyBreakdown[audit.company] = (companyBreakdown[audit.company] || 0) + 1;
+    });
+    
+    const breakdownText = Object.entries(companyBreakdown)
+        .map(([company, count]) => `${getCompanyDisplayName(company)}: ${count}`)
+        .join('\n');
+    
+    if (!confirm(`Tem certeza que deseja excluir TODAS as ${totalCount} auditorias?\n\n${breakdownText}\n\nEsta ação não pode ser desfeita!`)) {
+        return;
+    }
+    
+    // Clear all audits from localStorage
+    const companies = ['carol', 'grand-vision', 'sunglass-hut'];
+    companies.forEach(company => {
+        localStorage.setItem(`${company}_audits`, '[]');
+        localStorage.setItem(`${company}_lojas`, '0');
+    });
+    
+    // Clear all audits from memory
+    allAudits = [];
+    filteredAudits = [];
+    
+    // Refresh display
+    displayAudits();
+    updateStatistics();
+    
+    showNotification(`Todas as ${totalCount} auditorias foram excluídas!`, 'success');
 }
 
 // Go back to dashboard

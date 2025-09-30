@@ -42,7 +42,17 @@ class AuditAPI {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Try to parse as JSON, but handle non-JSON responses
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // If JSON parsing fails, create a simple error object
+        data = {
+          error: `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP error! status: ${response.status}`);
@@ -142,13 +152,22 @@ class AuditAPI {
       body: formData
     });
 
-    const data = await response.json();
-
+    // Check if response is ok first
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      // Create a simple error message without trying to parse JSON
+      const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
     }
 
-    return data;
+    // Only try to parse JSON if response is ok
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      // If JSON parsing fails even on successful response, return empty object
+      console.warn('Failed to parse JSON response:', jsonError);
+      return {};
+    }
   }
 
   async deleteAudit(auditId) {

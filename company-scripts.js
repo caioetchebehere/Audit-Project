@@ -13,6 +13,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add loading animation
     addLoadingAnimation();
+    
+    // Refresh data when page becomes visible (when returning from other pages)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            initializeCompanyLojasCount();
+        }
+    });
+    
+    // Add a test button for debugging (temporary)
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Update Count';
+    testButton.style.position = 'fixed';
+    testButton.style.top = '10px';
+    testButton.style.right = '10px';
+    testButton.style.zIndex = '9999';
+    testButton.onclick = function() {
+        updateLojasCount();
+        console.log('Test button clicked - count updated');
+    };
+    document.body.appendChild(testButton);
 });
 
 // Initialize upload form functionality
@@ -44,23 +64,27 @@ async function handleFileUpload(e) {
     const description = formData.get('description');
     const priority = formData.get('priority');
     
-    // Get company ID
+    // Get company ID (with fallback)
     const companyName = getCurrentCompany();
-    const companyId = await getCompanyId(companyName);
+    let companyId;
+    
+    try {
+        companyId = await getCompanyId(companyName);
+    } catch (error) {
+        console.log('API not available, using fallback company ID');
+        // Use fallback company IDs
+        const companyIds = {
+            'carol': 1,
+            'grand-vision': 2,
+            'sunglass-hut': 3
+        };
+        companyId = companyIds[companyName] || 1;
+    }
     
     if (!companyId) {
         showNotification('Company not found.', 'error');
         return;
     }
-    
-    // Prepare form data for API
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', file);
-    uploadFormData.append('company_id', companyId);
-    uploadFormData.append('audit_date', auditDate);
-    uploadFormData.append('branch_number', branchNumber);
-    uploadFormData.append('description', description);
-    uploadFormData.append('status', priority);
     
     // Show progress
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -70,54 +94,36 @@ async function handleFileUpload(e) {
     
     showNotification('Uploading file...', 'info');
     
+    // Use local storage directly (skip server entirely for now)
     try {
-        // Upload via API
-        const response = await window.auditAPI.uploadAudit(uploadFormData);
+        console.log('Using local storage for file upload...');
+        
+        // Store audit data locally
+        storeAuditData(file.name, auditDate, branchNumber, description, priority);
+        console.log('Audit data stored locally');
         
         // Add to recent uploads
         addToRecentUploads(file.name, auditDate, branchNumber, priority);
-        
-        // Store audit data for backlog
-        storeAuditData(file.name, auditDate, branchNumber, description, priority);
+        console.log('Added to recent uploads');
         
         // Update Last Audit date
         updateLastAuditDate(auditDate);
+        console.log('Updated last audit date');
         
         // Update Lojas count for this company
-        await updateLojasCount();
-        
-        // Show success notification
-        showNotification(`File "${file.name}" uploaded successfully!`, 'success');
+        updateLojasCount();
+        console.log('Updated lojas count');
         
         // Reset form
         e.target.reset();
+        console.log('Form reset');
+        
+        showNotification(`File "${file.name}" saved successfully!`, 'success');
+        console.log('File upload completed successfully');
         
     } catch (error) {
-        console.error('Upload failed, using fallback storage:', error);
-        
-        // Fallback: Store locally when server is not available
-        try {
-            // Store audit data locally
-            storeAuditData(file.name, auditDate, branchNumber, description, priority);
-            
-            // Add to recent uploads
-            addToRecentUploads(file.name, auditDate, branchNumber, priority);
-            
-            // Update Last Audit date
-            updateLastAuditDate(auditDate);
-            
-            // Update Lojas count for this company
-            await updateLojasCount();
-            
-            // Reset form
-            e.target.reset();
-            
-            showNotification(`File "${file.name}" saved locally (server not available)`, 'success');
-            
-        } catch (fallbackError) {
-            console.error('Fallback storage failed:', fallbackError);
-            showNotification('Error saving file. Please try again.', 'error');
-        }
+        console.error('Local storage failed:', error);
+        showNotification('Error saving file. Please try again.', 'error');
     } finally {
         // Reset button
         submitBtn.textContent = originalText;
@@ -216,7 +222,7 @@ function storeAuditData(filename, auditDate, branchNumber, description, priority
 
 // Update Last Audit date
 function updateLastAuditDate(auditDate) {
-    const lastAuditElement = document.querySelector('.last-audit-date');
+    const lastAuditElement = document.querySelector('.status-value.last-audit-date');
     if (lastAuditElement) {
         lastAuditElement.textContent = auditDate;
     }
@@ -246,6 +252,12 @@ function updateLojasCount() {
     const currentCount = parseInt(localStorage.getItem(lojasKey) || '0');
     const newCount = currentCount + 1;
     
+    console.log(`Updating lojas count for ${companyName}:`, {
+        lojasKey,
+        currentCount,
+        newCount
+    });
+    
     // Store new count
     localStorage.setItem(lojasKey, newCount.toString());
     
@@ -253,6 +265,9 @@ function updateLojasCount() {
     const lojasElement = document.querySelector('.status-value.lojas');
     if (lojasElement) {
         animateValueChange(lojasElement, currentCount, newCount, '');
+        console.log('Updated lojas element to:', newCount);
+    } else {
+        console.log('Lojas element not found for update');
     }
     
     // Update the main dashboard if possible
@@ -274,20 +289,33 @@ function getCurrentCompany() {
 function initializeCompanyLojasCount() {
     const companyName = getCurrentCompany();
     const lojasKey = `${companyName}_lojas`;
-    // Reset count to zero
-    localStorage.setItem(lojasKey, '0');
+    
+    // Load existing count from localStorage instead of resetting to zero
+    const currentCount = parseInt(localStorage.getItem(lojasKey) || '0');
+    
+    console.log(`Loading data for ${companyName}:`, {
+        lojasKey,
+        currentCount,
+        allLojasKeys: Object.keys(localStorage).filter(key => key.includes('_lojas'))
+    });
     
     const lojasElement = document.querySelector('.status-value.lojas');
     if (lojasElement) {
-        lojasElement.textContent = '0';
+        lojasElement.textContent = currentCount.toString();
+        console.log('Updated lojas element:', lojasElement.textContent);
+    } else {
+        console.log('Lojas element not found');
     }
     
     // Load last audit date from localStorage
     const lastAuditKey = `${companyName}_last_audit`;
     const lastAuditDate = localStorage.getItem(lastAuditKey);
-    const lastAuditElement = document.querySelector('.last-audit-date');
+    const lastAuditElement = document.querySelector('.status-value.last-audit-date');
     if (lastAuditElement) {
         lastAuditElement.textContent = lastAuditDate || 'N/A';
+        console.log('Updated last audit element:', lastAuditElement.textContent);
+    } else {
+        console.log('Last audit element not found');
     }
 }
 
