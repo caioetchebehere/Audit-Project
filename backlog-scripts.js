@@ -265,7 +265,7 @@ function deleteAudit(auditId) {
 
 // Go back to dashboard
 function goBack() {
-    window.location.href = 'main.html';
+    window.location.href = 'index.html';
 }
 
 // Add loading animation

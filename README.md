@@ -56,8 +56,8 @@ A comprehensive audit management system for tracking compliance across multiple 
    - Or serve it with a local server (recommended)
 
 ### Default Admin Credentials
-- **Email**: admin@2025
-- **Password**: audit@2025
+- **Email**: lux@2025
+- **Password**: admin@2025
 
 ## Project Structure
 

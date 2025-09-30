@@ -86,7 +86,7 @@ function initializeDatabase() {
       `);
 
       // Insert default admin user
-      const defaultPassword = 'audit@2025';
+      const defaultPassword = 'admin@2025';
       bcrypt.hash(defaultPassword, 10, (err, hash) => {
         if (err) {
           reject(err);
@@ -95,13 +95,13 @@ function initializeDatabase() {
 
         db.run(`
           INSERT OR IGNORE INTO users (email, password_hash, role) VALUES 
-          ('admin@2025', ?, 'admin')
+          ('lux@2025', ?, 'admin')
         `, [hash], function(err) {
           if (err) {
             reject(err);
           } else {
             console.log('Database initialized successfully');
-            console.log('Default admin credentials: admin@2025 / audit@2025');
+            console.log('Default admin credentials: lux@2025 / admin@2025');
             resolve();
           }
         });

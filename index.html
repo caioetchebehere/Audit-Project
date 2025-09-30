@@ -15,8 +15,7 @@
                 <h1>Auditorias</h1>
                 <div class="admin-controls">
                     <button class="btn btn-primary" onclick="goToBacklog()">View Backlog</button>
-                    <button id="adminLoginBtn" class="btn btn-secondary" onclick="showLoginModal()">Login Admin</button>
-                    <button id="adminLogoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Logout</button>
+                    <!-- Login functionality removed - admin access always granted -->
                 </div>
             </div>
         </header>
@@ -88,8 +87,7 @@
                 <div class="news-content">
                     <div class="empty-news">
                         <p>Nenhuma notícia disponível no momento.</p>
-                        <button id="addNewsBtn" class="btn btn-primary" onclick="addNewNews()" style="display: none;">Adicionar Nova Notícia</button>
-                        <button id="loginToAddBtn" class="btn btn-primary" onclick="showLoginModal()">Login para Adicionar</button>
+                        <button id="addNewsBtn" class="btn btn-primary" onclick="addNewNews()" style="display: block;">Adicionar Nova Notícia</button>
                     </div>
                 </div>
             </div>

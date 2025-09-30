@@ -71,11 +71,11 @@ function startServer() {
   console.log('📊 API available at: http://localhost:3000/api');
   console.log('🔍 Health check: http://localhost:3000/api/health');
   console.log('\n🌐 Open your frontend files in a browser:');
-  console.log('   - Main Dashboard: main.html');
+  console.log('   - Main Dashboard: index.html');
   console.log('   - Company Pages: carol.html, grand-vision.html, sunglass-hut.html');
   console.log('\n👤 Default admin credentials:');
-  console.log('   Email: admin@2025');
-  console.log('   Password: audit@2025');
+  console.log('   Email: lux@2025');
+  console.log('   Password: admin@2025');
   console.log('\nPress Ctrl+C to stop the server');
 }
 

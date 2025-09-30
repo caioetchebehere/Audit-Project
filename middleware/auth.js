@@ -2,30 +2,16 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Middleware to authenticate JWT tokens
+// Middleware to authenticate JWT tokens - DISABLED
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
-    }
-
-    req.user = user;
-    next();
-  });
+  // Authentication disabled - always allow access
+  req.user = { id: 1, email: 'admin', role: 'admin' };
+  next();
 }
 
-// Middleware to check if user is admin
+// Middleware to check if user is admin - DISABLED
 function requireAdmin(req, res, next) {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
+  // Admin access always granted
   next();
 }
 

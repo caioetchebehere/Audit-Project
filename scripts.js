@@ -395,12 +395,7 @@ function animateValueChange(element, start, end, suffix) {
 
 // Add new news manually (called by button)
 function addNewNews() {
-    // Check if admin is logged in
-    if (!isAdminLoggedIn()) {
-        showNotification('Você precisa fazer login como administrador para adicionar notícias.', 'error');
-        showLoginModal();
-        return;
-    }
+    // Admin access always granted - no login required
     
     const modal = document.getElementById('newsModal');
     const newsForm = document.getElementById('newsForm');
@@ -512,12 +507,7 @@ function addNewsItem(title, summary, date) {
 
 // Remove news item
 async function removeNewsItem(newsId) {
-    // Check if admin is logged in
-    if (!isAdminLoggedIn()) {
-        showNotification('Você precisa fazer login como administrador para remover notícias.', 'error');
-        showLoginModal();
-        return;
-    }
+    // Admin access always granted - no login required
     
     try {
         // Delete via API
@@ -559,11 +549,9 @@ function showEmptyNewsState() {
     const emptyNews = document.createElement('div');
     emptyNews.className = 'empty-news';
     
-    const isAdmin = isAdminLoggedIn();
     emptyNews.innerHTML = `
         <p>Nenhuma notícia disponível no momento.</p>
-        <button id="addNewsBtn" class="btn btn-primary" onclick="addNewNews()" style="display: ${isAdmin ? 'block' : 'none'};">Adicionar Nova Notícia</button>
-        <button id="loginToAddBtn" class="btn btn-primary" onclick="showLoginModal()" style="display: ${isAdmin ? 'none' : 'block'};">Login para Adicionar</button>
+        <button id="addNewsBtn" class="btn btn-primary" onclick="addNewNews()" style="display: block;">Adicionar Nova Notícia</button>
     `;
     
     newsContent.appendChild(emptyNews);
@@ -761,7 +749,7 @@ function updateAdminUI(isAdmin) {
 }
 
 function isAdminLoggedIn() {
-    return localStorage.getItem('adminLoggedIn') === 'true';
+    return true; // Always return true to bypass login requirement
 }
 
 // Toggle password visibility

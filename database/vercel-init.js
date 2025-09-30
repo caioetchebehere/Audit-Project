@@ -10,8 +10,8 @@ let db = {
   users: [
     { 
       id: 1, 
-      email: 'admin@2025', 
-      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // audit@2025
+      email: 'lux@2025', 
+      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // admin@2025
       role: 'admin' 
     }
   ],
@@ -23,7 +23,7 @@ let db = {
 function initializeDatabase() {
   return new Promise((resolve) => {
     console.log('Vercel-compatible database initialized');
-    console.log('Default admin credentials: admin@2025 / audit@2025');
+    console.log('Default admin credentials: lux@2025 / admin@2025');
     resolve();
   });
 }
