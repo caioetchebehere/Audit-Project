@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize audit details modal
     initializeAuditDetailsModal();
     
+    // Initialize delete password modal
+    initializeDeletePasswordModal();
+    
     // Add loading animation
     addLoadingAnimation();
 });
@@ -227,6 +230,9 @@ function updateStatistics() {
 // Global variable to store current audit ID for modal actions
 let currentAuditId = null;
 
+// Global variable to store delete callback for password validation
+let deletePasswordCallback = null;
+
 // View audit details
 function viewAuditDetails(auditId) {
     const audit = allAudits.find(a => a.id === auditId);
@@ -269,11 +275,13 @@ function closeAuditDetailsModal() {
 function deleteAuditFromModal() {
     if (!currentAuditId) return;
     
-    // Close modal first
+    // Close audit details modal first
     closeAuditDetailsModal();
     
-    // Call the existing delete function
-    deleteAudit(currentAuditId);
+    // Require password for deletion
+    showDeletePasswordModal(() => {
+        proceedWithDeleteAudit(currentAuditId);
+    });
 }
 
 // Initialize audit details modal
@@ -298,8 +306,114 @@ function initializeAuditDetailsModal() {
     });
 }
 
-// Delete audit
+// Delete Password Functions
+function showDeletePasswordModal(callback) {
+    deletePasswordCallback = callback;
+    const modal = document.getElementById('deletePasswordModal');
+    const form = document.getElementById('deletePasswordForm');
+    
+    // Clear form
+    form.reset();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Focus on password input
+    setTimeout(() => {
+        document.getElementById('deletePassword').focus();
+    }, 100);
+}
+
+function closeDeletePasswordModal() {
+    const modal = document.getElementById('deletePasswordModal');
+    modal.style.display = 'none';
+    deletePasswordCallback = null;
+}
+
+function toggleDeletePassword() {
+    const passwordInput = document.getElementById('deletePassword');
+    const toggleIcon = document.getElementById('deletePasswordToggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+        toggleIcon.setAttribute('aria-label', 'Ocultar senha');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+        toggleIcon.setAttribute('aria-label', 'Mostrar senha');
+    }
+}
+
+// Initialize delete password modal
+function initializeDeletePasswordModal() {
+    const form = document.getElementById('deletePasswordForm');
+    const modal = document.getElementById('deletePasswordModal');
+    
+    if (form) {
+        form.addEventListener('submit', handleDeletePasswordSubmit);
+    }
+    
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeDeletePasswordModal();
+            }
+        });
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeDeletePasswordModal();
+        }
+    });
+}
+
+function handleDeletePasswordSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const password = formData.get('deletePassword');
+    
+    // Simple password validation - same password as uploads
+    const correctPassword = 'audit2025';
+    
+    if (password === correctPassword) {
+        // Correct password
+        closeDeletePasswordModal();
+        showNotification('Password accepted. Proceeding with deletion.', 'success');
+        
+        // Execute the callback function that was waiting for password validation
+        if (deletePasswordCallback) {
+            deletePasswordCallback();
+        }
+    } else {
+        // Wrong password
+        showNotification('Incorrect password. Please try again.', 'error');
+        document.getElementById('deletePassword').value = '';
+        document.getElementById('deletePassword').focus();
+    }
+}
+
+// Delete audit (requires password)
 function deleteAudit(auditId) {
+    // Find the audit to get company info
+    const audit = allAudits.find(a => a.id === auditId);
+    if (!audit) {
+        showNotification('Auditoria não encontrada.', 'error');
+        return;
+    }
+    
+    // Require password for deletion
+    showDeletePasswordModal(() => {
+        proceedWithDeleteAudit(auditId);
+    });
+}
+
+// Separate function to handle the actual delete after password validation
+function proceedWithDeleteAudit(auditId) {
     // Find the audit to get company info
     const audit = allAudits.find(a => a.id === auditId);
     if (!audit) {
@@ -354,13 +468,21 @@ function updateCompanyLojasCount(companyName) {
     }
 }
 
-// Delete all audits
+// Delete all audits (requires password)
 function deleteAllAudits() {
     if (allAudits.length === 0) {
         showNotification('Nenhuma auditoria para excluir.', 'info');
         return;
     }
     
+    // Require password for deletion
+    showDeletePasswordModal(() => {
+        proceedWithDeleteAllAudits();
+    });
+}
+
+// Separate function to handle the actual delete all after password validation
+function proceedWithDeleteAllAudits() {
     const totalCount = allAudits.length;
     const companyBreakdown = {};
     
