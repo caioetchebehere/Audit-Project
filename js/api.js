@@ -212,6 +212,21 @@ class AuditAPI {
   async healthCheck() {
     return await this.request('/health');
   }
+
+  // User management methods
+  async createAdmin(email, password, confirmPassword) {
+    return await this.request('/auth/create-admin', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, confirmPassword })
+    });
+  }
+
+  async updatePassword(currentPassword, newPassword, confirmPassword) {
+    return await this.request('/auth/update-password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+    });
+  }
 }
 
 // Create global API instance

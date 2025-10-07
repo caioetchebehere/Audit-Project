@@ -869,3 +869,94 @@ body {
         width: 100%;
     }
 }
+
+/* Setup Modal Styles */
+.setup-info {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.setup-info p {
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.setup-info code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.warning-text {
+    color: #dc3545 !important;
+    font-weight: 600;
+    margin-top: 15px !important;
+}
+
+.create-admin-form .form-group {
+    margin-bottom: 20px;
+}
+
+.create-admin-form .password-input-container {
+    position: relative;
+}
+
+.create-admin-form .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.create-admin-form .password-toggle:hover {
+    background-color: #f8f9fa;
+}
+
+.create-admin-form .password-toggle:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Enhanced modal styling */
+.modal-overlay {
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Notification enhancements */
+.notification {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid;
+}
+
+.notification-success {
+    border-left-color: #28a745;
+}
+
+.notification-error {
+    border-left-color: #dc3545;
+}
+
+.notification-warning {
+    border-left-color: #ffc107;
+}
+
+.notification-info {
+    border-left-color: #17a2b8;
+}

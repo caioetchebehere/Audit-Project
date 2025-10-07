@@ -15,17 +15,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize news modal
     initializeNewsModal();
     
-    // Initialize admin login
-    initializeAdminLogin();
-    
-    // Check admin status
-    await checkAdminStatus();
+    // Initialize upload password modal
+    initializeUploadPasswordModal();
     
     // Refresh data when page becomes visible (when returning from other pages)
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
-            console.log('Page became visible, refreshing lojas counts...');
+            console.log('Page became visible, refreshing data...');
             loadLojasCountsFromStorage();
+            updatePieChartFromAuditData(); // Also refresh pie chart
         }
     });
     
@@ -222,6 +220,12 @@ function updateCompanyLojas(company, newCount) {
 function refreshAllLojasCounts() {
     console.log('Refreshing all lojas counts from main page...');
     loadLojasCountsFromStorage();
+}
+
+// Global function to refresh pie chart (called from other pages)
+function refreshPieChart() {
+    console.log('Refreshing pie chart from main page...');
+    updatePieChartFromAuditData();
 }
 
 // Initialize data from API
@@ -428,8 +432,6 @@ function animateValueChange(element, start, end, suffix) {
 
 // Add new news manually (called by button)
 function addNewNews() {
-    // Admin access always granted - no login required
-    
     const modal = document.getElementById('newsModal');
     const newsForm = document.getElementById('newsForm');
     
@@ -540,8 +542,6 @@ function addNewsItem(title, summary, date) {
 
 // Remove news item
 async function removeNewsItem(newsId) {
-    // Admin access always granted - no login required
-    
     try {
         // Delete via API
         await window.auditAPI.deleteNews(newsId);
@@ -624,182 +624,6 @@ function initializeNewsModal() {
     });
 }
 
-// Admin Login Functions
-function initializeAdminLogin() {
-    const loginForm = document.getElementById('loginForm');
-    const loginModal = document.getElementById('loginModal');
-    
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLoginSubmit);
-    }
-    
-    // Close modal when clicking outside
-    if (loginModal) {
-        loginModal.addEventListener('click', function(e) {
-            if (e.target === loginModal) {
-                closeLoginModal();
-            }
-        });
-    }
-}
-
-function showLoginModal() {
-    const modal = document.getElementById('loginModal');
-    const loginForm = document.getElementById('loginForm');
-    
-    // Clear form
-    loginForm.reset();
-    
-    // Show modal
-    modal.style.display = 'flex';
-    
-    // Focus on email input
-    setTimeout(() => {
-        document.getElementById('loginEmail').focus();
-    }, 100);
-    
-    // Add keyboard support for password toggle
-    const passwordToggle = document.querySelector('.password-toggle');
-    if (passwordToggle) {
-        passwordToggle.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                togglePassword();
-            }
-        });
-    }
-}
-
-function closeLoginModal() {
-    const modal = document.getElementById('loginModal');
-    modal.style.display = 'none';
-}
-
-async function handleLoginSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const email = formData.get('loginEmail');
-    const password = formData.get('loginPassword');
-    
-    try {
-        // Attempt API login
-        const response = await window.auditAPI.login(email, password);
-        
-        // Successful login
-        localStorage.setItem('adminLoggedIn', 'true');
-        localStorage.setItem('adminLoginTime', Date.now().toString());
-        
-        // Update UI
-        updateAdminUI(true);
-        
-        // Close modal
-        closeLoginModal();
-        
-        // Show success message
-        showNotification('Login realizado com sucesso!', 'success');
-        
-        // Reload data
-        await loadNews();
-        await loadAuditStats();
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        showNotification('Credenciais inválidas. Tente novamente.', 'error');
-    }
-}
-
-async function logout() {
-    try {
-        // API logout
-        await window.auditAPI.logout();
-    } catch (error) {
-        console.error('Logout error:', error);
-    } finally {
-        // Clear admin session
-        localStorage.removeItem('adminLoggedIn');
-        localStorage.removeItem('adminLoginTime');
-        
-        // Update UI
-        updateAdminUI(false);
-        
-        // Show logout message
-        showNotification('Logout realizado com sucesso!', 'info');
-    }
-}
-
-async function checkAdminStatus() {
-    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-    const loginTime = localStorage.getItem('adminLoginTime');
-    
-    // Check if session is still valid (24 hours)
-    if (isLoggedIn && loginTime) {
-        const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-        const currentTime = Date.now();
-        
-        if (currentTime - parseInt(loginTime) > sessionDuration) {
-            // Session expired
-            await logout();
-            return;
-        }
-        
-        // Verify token with API
-        try {
-            const verification = await window.auditAPI.verifyToken();
-            if (!verification.valid) {
-                await logout();
-                return;
-            }
-        } catch (error) {
-            console.error('Token verification failed:', error);
-            await logout();
-            return;
-        }
-    }
-    
-    updateAdminUI(isLoggedIn);
-}
-
-function updateAdminUI(isAdmin) {
-    const loginBtn = document.getElementById('adminLoginBtn');
-    const logoutBtn = document.getElementById('adminLogoutBtn');
-    const addNewsBtn = document.getElementById('addNewsBtn');
-    const loginToAddBtn = document.getElementById('loginToAddBtn');
-    
-    if (isAdmin) {
-        // Show admin controls
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'block';
-        if (addNewsBtn) addNewsBtn.style.display = 'block';
-        if (loginToAddBtn) loginToAddBtn.style.display = 'none';
-    } else {
-        // Hide admin controls
-        if (loginBtn) loginBtn.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (addNewsBtn) addNewsBtn.style.display = 'none';
-        if (loginToAddBtn) loginToAddBtn.style.display = 'block';
-    }
-}
-
-function isAdminLoggedIn() {
-    return true; // Always return true to bypass login requirement
-}
-
-// Toggle password visibility
-function togglePassword() {
-    const passwordInput = document.getElementById('loginPassword');
-    const toggleIcon = document.getElementById('passwordToggleIcon');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.textContent = '🙈'; // Hide icon
-        toggleIcon.setAttribute('aria-label', 'Ocultar senha');
-    } else {
-        passwordInput.type = 'password';
-        toggleIcon.textContent = '👁️'; // Show icon
-        toggleIcon.setAttribute('aria-label', 'Mostrar senha');
-    }
-}
 
 // Notification system
 function showNotification(message, type = 'info') {
@@ -904,19 +728,30 @@ function updatePieChartFromAuditData() {
     }
 }
 
-// Function to get audit status counts (can be extended to read from actual data)
+// Function to get audit status counts from stored data
 function getAuditStatusCounts() {
-    // Always start with empty counts - data will be added as audits are uploaded
-    localStorage.setItem('auditStatusData', JSON.stringify({
-        reprovadas: 0,
-        aprovadasComAviso: 0,
-        aprovadas: 0
-    }));
+    // Read from localStorage, initialize if not exists
+    const storedData = localStorage.getItem('auditStatusData');
+    
+    if (!storedData) {
+        // Initialize with empty counts if no data exists
+        const initialData = {
+            reprovadas: 0,
+            aprovadasComAviso: 0,
+            aprovadas: 0
+        };
+        localStorage.setItem('auditStatusData', JSON.stringify(initialData));
+        return initialData;
+    }
+    
+    // Parse and return stored data
+    const data = JSON.parse(storedData);
+    console.log('Retrieved audit status counts:', data);
     
     return {
-        reprovadas: 0,
-        aprovadasComAviso: 0,
-        aprovadas: 0
+        reprovadas: data.reprovadas || 0,
+        aprovadasComAviso: data.aprovadasComAviso || 0,
+        aprovadas: data.aprovadas || 0
     };
 }
 
@@ -924,6 +759,8 @@ function getAuditStatusCounts() {
 function addAuditStatus(status) {
     // Store in localStorage for persistence, start with empty data if none exists
     const currentData = JSON.parse(localStorage.getItem('auditStatusData') || '{"reprovadas": 0, "aprovadasComAviso": 0, "aprovadas": 0}');
+    
+    console.log('Adding audit status:', status, 'Current data:', currentData);
     
     switch(status) {
         case 'reprovada':
@@ -935,11 +772,18 @@ function addAuditStatus(status) {
         case 'aprovada':
             currentData.aprovadas++;
             break;
+        default:
+            console.log('Unknown audit status:', status);
+            return;
     }
     
     localStorage.setItem('auditStatusData', JSON.stringify(currentData));
+    console.log('Updated audit status data:', currentData);
+    
+    // Update the pie chart
     updatePieChartFromAuditData();
 }
+
 
 // Add keyboard shortcuts
 document.addEventListener('keydown', function(e) {
@@ -961,3 +805,101 @@ window.addEventListener('load', function() {
         document.body.style.opacity = '1';
     }, 100);
 });
+
+// Upload Password Functions
+let uploadPasswordCallback = null;
+
+function showUploadPasswordModal(callback) {
+    uploadPasswordCallback = callback;
+    const modal = document.getElementById('uploadPasswordModal');
+    const form = document.getElementById('uploadPasswordForm');
+    
+    // Clear form
+    form.reset();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Focus on password input
+    setTimeout(() => {
+        document.getElementById('uploadPassword').focus();
+    }, 100);
+}
+
+function closeUploadPasswordModal() {
+    const modal = document.getElementById('uploadPasswordModal');
+    modal.style.display = 'none';
+    uploadPasswordCallback = null;
+}
+
+function toggleUploadPassword() {
+    const passwordInput = document.getElementById('uploadPassword');
+    const toggleIcon = document.getElementById('uploadPasswordToggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+        toggleIcon.setAttribute('aria-label', 'Ocultar senha');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+        toggleIcon.setAttribute('aria-label', 'Mostrar senha');
+    }
+}
+
+// Initialize upload password modal
+function initializeUploadPasswordModal() {
+    const form = document.getElementById('uploadPasswordForm');
+    const modal = document.getElementById('uploadPasswordModal');
+    
+    if (form) {
+        form.addEventListener('submit', handleUploadPasswordSubmit);
+    }
+    
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeUploadPasswordModal();
+            }
+        });
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeUploadPasswordModal();
+        }
+    });
+}
+
+function handleUploadPasswordSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const password = formData.get('uploadPassword');
+    
+    // Simple password validation - you can change this password
+    const correctPassword = 'audit2025';
+    
+    if (password === correctPassword) {
+        // Correct password
+        closeUploadPasswordModal();
+        showNotification('Password accepted. You can now upload audit information.', 'success');
+        
+        // Execute the callback function that was waiting for password validation
+        if (uploadPasswordCallback) {
+            uploadPasswordCallback();
+        }
+    } else {
+        // Wrong password
+        showNotification('Incorrect password. Please try again.', 'error');
+        document.getElementById('uploadPassword').value = '';
+        document.getElementById('uploadPassword').focus();
+    }
+}
+
+// Function to check if user has permission to upload (can be called from other pages)
+function requireUploadPassword(callback) {
+    showUploadPasswordModal(callback);
+}

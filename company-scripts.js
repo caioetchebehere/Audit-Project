@@ -21,18 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add a test button for debugging (temporary)
-    const testButton = document.createElement('button');
-    testButton.textContent = 'Test Update Count';
-    testButton.style.position = 'fixed';
-    testButton.style.top = '10px';
-    testButton.style.right = '10px';
-    testButton.style.zIndex = '9999';
-    testButton.onclick = function() {
-        updateLojasCount();
-        console.log('Test button clicked - count updated');
-    };
-    document.body.appendChild(testButton);
 });
 
 // Initialize upload form functionality
@@ -47,8 +35,6 @@ function initializeUploadForm() {
 async function handleFileUpload(e) {
     e.preventDefault();
     
-    // Admin access always granted - no login required
-    
     const formData = new FormData(e.target);
     const fileInput = document.getElementById('fileInput');
     const file = fileInput.files[0];
@@ -58,6 +44,30 @@ async function handleFileUpload(e) {
         return;
     }
     
+    // Require password for upload
+    if (window.parent && window.parent.requireUploadPassword) {
+        // If we're in an iframe, use parent's password function
+        window.parent.requireUploadPassword(() => {
+            proceedWithUpload(e, formData, file);
+        });
+    } else if (window.requireUploadPassword) {
+        // If we're not in an iframe, use our own function
+        window.requireUploadPassword(() => {
+            proceedWithUpload(e, formData, file);
+        });
+    } else {
+        // Fallback - show simple prompt
+        const password = prompt('Please enter the password to upload audit information:');
+        if (password === 'audit2025') {
+            proceedWithUpload(e, formData, file);
+        } else {
+            showNotification('Incorrect password. Upload cancelled.', 'error');
+        }
+    }
+}
+
+// Separate function to handle the actual upload after password validation
+async function proceedWithUpload(e, formData, file) {
     // Get form values
     const auditDate = formData.get('auditDate');
     const branchNumber = formData.get('branchNumber');
@@ -113,6 +123,10 @@ async function handleFileUpload(e) {
         // Update Lojas count for this company
         updateLojasCount();
         console.log('Updated lojas count');
+        
+        // Update audit status tracking for pie chart
+        updateAuditStatusTracking(priority);
+        console.log('Updated audit status tracking');
         
         // Reset form
         e.target.reset();
@@ -275,9 +289,63 @@ function updateLojasCount() {
         window.parent.updateCompanyLojas(companyName, newCount);
     }
     
-    // Also refresh all counts on main page
+    // Also refresh all counts and pie chart on main page
     if (window.parent && window.parent.refreshAllLojasCounts) {
         window.parent.refreshAllLojasCounts();
+    }
+    if (window.parent && window.parent.refreshPieChart) {
+        window.parent.refreshPieChart();
+    }
+}
+
+// Update audit status tracking for pie chart
+function updateAuditStatusTracking(status) {
+    // Store in localStorage for persistence
+    const currentData = JSON.parse(localStorage.getItem('auditStatusData') || '{"reprovadas": 0, "aprovadasComAviso": 0, "aprovadas": 0}');
+    
+    console.log('Updating audit status tracking:', {
+        status,
+        currentData,
+        beforeUpdate: { ...currentData }
+    });
+    
+    // Increment the appropriate status counter
+    switch(status) {
+        case 'reprovada':
+            currentData.reprovadas++;
+            break;
+        case 'aprovada-com-aviso':
+            currentData.aprovadasComAviso++;
+            break;
+        case 'aprovada':
+            currentData.aprovadas++;
+            break;
+        default:
+            console.log('Unknown status:', status);
+            return;
+    }
+    
+    // Store updated data
+    localStorage.setItem('auditStatusData', JSON.stringify(currentData));
+    
+    console.log('Updated audit status data:', currentData);
+    
+    // Update pie chart on main dashboard if possible
+    if (window.parent && window.parent.refreshPieChart) {
+        window.parent.refreshPieChart();
+        console.log('Updated parent pie chart via refresh function');
+    } else if (window.parent && window.parent.updatePieChartFromAuditData) {
+        window.parent.updatePieChartFromAuditData();
+        console.log('Updated parent pie chart directly');
+    }
+    
+    // Also try to update if we have the function locally
+    if (window.refreshPieChart) {
+        window.refreshPieChart();
+        console.log('Updated local pie chart via refresh function');
+    } else if (window.updatePieChartFromAuditData) {
+        window.updatePieChartFromAuditData();
+        console.log('Updated local pie chart directly');
     }
 }
 
@@ -399,6 +467,102 @@ function showNotification(message, type = 'info') {
 // Go back to dashboard
 function goBack() {
     window.location.href = 'index.html';
+}
+
+// Reset company data function
+function resetCompanyData() {
+    // Require password for reset operation
+    if (window.parent && window.parent.requireUploadPassword) {
+        // If we're in an iframe, use parent's password function
+        window.parent.requireUploadPassword(() => {
+            proceedWithReset();
+        });
+    } else if (window.requireUploadPassword) {
+        // If we're not in an iframe, use our own function
+        window.requireUploadPassword(() => {
+            proceedWithReset();
+        });
+    } else {
+        // Fallback - show simple prompt
+        const password = prompt('Please enter the password to reset audit data:');
+        if (password === 'audit2025') {
+            proceedWithReset();
+        } else {
+            showNotification('Incorrect password. Reset cancelled.', 'error');
+        }
+    }
+}
+
+// Separate function to handle the actual reset after password validation
+function proceedWithReset() {
+    const companyName = getCurrentCompany();
+    
+    // Show confirmation dialog
+    const confirmReset = confirm(
+        `Are you sure you want to reset ALL audit data for ${companyName.toUpperCase()}?\n\n` +
+        'This will:\n' +
+        '• Reset lojas count to 0\n' +
+        '• Clear last audit date\n' +
+        '• Remove all recent uploads\n' +
+        '• Clear all stored audit data\n\n' +
+        'This action cannot be undone!'
+    );
+    
+    if (!confirmReset) {
+        showNotification('Reset cancelled.', 'info');
+        return;
+    }
+    
+    try {
+        // Reset lojas count
+        const lojasKey = `${companyName}_lojas`;
+        localStorage.setItem(lojasKey, '0');
+        
+        // Reset last audit date
+        const lastAuditKey = `${companyName}_last_audit`;
+        localStorage.removeItem(lastAuditKey);
+        
+        // Clear audit data for this company
+        const auditsKey = `${companyName}_audits`;
+        localStorage.removeItem(auditsKey);
+        
+        // Update the display on current page
+        const lojasElement = document.querySelector('.status-value.lojas');
+        if (lojasElement) {
+            lojasElement.textContent = '0';
+        }
+        
+        const lastAuditElement = document.querySelector('.status-value.last-audit-date');
+        if (lastAuditElement) {
+            lastAuditElement.textContent = 'N/A';
+        }
+        
+        // Clear recent uploads list
+        const uploadsList = document.querySelector('.uploads-list');
+        if (uploadsList) {
+            uploadsList.innerHTML = '<div class="empty-uploads"><p>Nenhum upload realizado ainda.</p></div>';
+        }
+        
+        // Update main dashboard if possible
+        if (window.parent && window.parent.updateCompanyLojas) {
+            window.parent.updateCompanyLojas(companyName, 0);
+        }
+        
+        if (window.parent && window.parent.refreshAllLojasCounts) {
+            window.parent.refreshAllLojasCounts();
+        }
+        
+        if (window.parent && window.parent.refreshPieChart) {
+            window.parent.refreshPieChart();
+        }
+        
+        showNotification(`All audit data for ${companyName.toUpperCase()} has been reset successfully!`, 'success');
+        console.log(`Reset completed for ${companyName}`);
+        
+    } catch (error) {
+        console.error('Reset failed:', error);
+        showNotification('Error resetting data. Please try again.', 'error');
+    }
 }
 
 // Add loading animation
