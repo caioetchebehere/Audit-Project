@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the backlog page
     initializeBacklogPage();
     
+    // Initialize audit details modal
+    initializeAuditDetailsModal();
+    
     // Add loading animation
     addLoadingAnimation();
 });
@@ -221,21 +224,78 @@ function updateStatistics() {
     document.getElementById('reprovadasCount').textContent = reprovadas;
 }
 
+// Global variable to store current audit ID for modal actions
+let currentAuditId = null;
+
 // View audit details
 function viewAuditDetails(auditId) {
     const audit = allAudits.find(a => a.id === auditId);
     if (!audit) return;
     
-    const details = `
-        <strong>Empresa:</strong> ${audit.companyName}<br>
-        <strong>Arquivo:</strong> ${audit.filename}<br>
-        <strong>Data:</strong> ${formatDate(audit.auditDate)}<br>
-        <strong>Filial:</strong> ${audit.branchNumber}<br>
-        <strong>Status:</strong> ${getStatusLabel(audit.status)}<br>
-        <strong>Descrição:</strong> ${audit.description || 'Sem descrição'}
-    `;
+    // Store current audit ID for modal actions
+    currentAuditId = auditId;
     
-    alert(details);
+    // Populate modal with audit data
+    document.getElementById('detailCompany').textContent = audit.companyName;
+    document.getElementById('detailBranch').textContent = audit.branchNumber;
+    document.getElementById('detailFilename').textContent = audit.filename;
+    document.getElementById('detailUploadDate').textContent = formatDate(audit.uploadDate || new Date().toISOString().split('T')[0]);
+    document.getElementById('detailAuditDate').textContent = formatDate(audit.auditDate);
+    document.getElementById('detailStatus').textContent = getStatusLabel(audit.status);
+    document.getElementById('detailDescription').textContent = audit.description || 'Sem descrição';
+    
+    // Add status class to status element for styling
+    const statusElement = document.getElementById('detailStatus');
+    statusElement.className = 'detail-value ' + audit.status;
+    
+    // Show modal
+    const modal = document.getElementById('auditDetailsModal');
+    modal.style.display = 'flex';
+    
+    // Focus on modal for accessibility
+    setTimeout(() => {
+        modal.focus();
+    }, 100);
+}
+
+// Close audit details modal
+function closeAuditDetailsModal() {
+    const modal = document.getElementById('auditDetailsModal');
+    modal.style.display = 'none';
+    currentAuditId = null;
+}
+
+// Delete audit from modal
+function deleteAuditFromModal() {
+    if (!currentAuditId) return;
+    
+    // Close modal first
+    closeAuditDetailsModal();
+    
+    // Call the existing delete function
+    deleteAudit(currentAuditId);
+}
+
+// Initialize audit details modal
+function initializeAuditDetailsModal() {
+    const modal = document.getElementById('auditDetailsModal');
+    const form = document.getElementById('auditDetailsForm');
+    
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeAuditDetailsModal();
+            }
+        });
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeAuditDetailsModal();
+        }
+    });
 }
 
 // Delete audit
