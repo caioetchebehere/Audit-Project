@@ -71,6 +71,7 @@ async function proceedWithUpload(e, formData, file) {
     // Get form values
     const auditDate = formData.get('auditDate');
     const branchNumber = formData.get('branchNumber');
+    const ticketNumber = formData.get('ticketNumber');
     const description = formData.get('description');
     const priority = formData.get('priority');
     
@@ -108,13 +109,18 @@ async function proceedWithUpload(e, formData, file) {
     try {
         console.log('Using local storage for file upload...');
         
-        // Store audit data locally
-        storeAuditData(file.name, auditDate, branchNumber, description, priority);
-        console.log('Audit data stored locally');
-        
-        // Add to recent uploads
-        addToRecentUploads(file.name, auditDate, branchNumber, priority);
-        console.log('Added to recent uploads');
+        // Read file as base64 for storage
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileContent = e.target.result;
+            
+            // Store audit data locally with file content
+            storeAuditData(file.name, auditDate, branchNumber, ticketNumber, description, priority, fileContent, file.type);
+            console.log('Audit data stored locally');
+            
+            // Add to recent uploads
+            addToRecentUploads(file.name, auditDate, branchNumber, priority);
+            console.log('Added to recent uploads');
         
         // Update Last Audit date
         updateLastAuditDate(auditDate);
@@ -124,22 +130,34 @@ async function proceedWithUpload(e, formData, file) {
         updateLojasCount();
         console.log('Updated lojas count');
         
-        // Update audit status tracking for pie chart
-        updateAuditStatusTracking(priority);
-        console.log('Updated audit status tracking');
+            // Update audit status tracking for pie chart
+            updateAuditStatusTracking(priority);
+            console.log('Updated audit status tracking');
+            
+            // Reset form
+            e.target.reset();
+            console.log('Form reset');
+            
+            showNotification(`File "${file.name}" saved successfully!`, 'success');
+            console.log('File upload completed successfully');
+            
+            // Reset button
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        };
         
-        // Reset form
-        e.target.reset();
-        console.log('Form reset');
+        reader.onerror = function(error) {
+            console.error('File reading failed:', error);
+            showNotification('Error reading file. Please try again.', 'error');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        };
         
-        showNotification(`File "${file.name}" saved successfully!`, 'success');
-        console.log('File upload completed successfully');
+        reader.readAsDataURL(file);
         
     } catch (error) {
         console.error('Local storage failed:', error);
         showNotification('Error saving file. Please try again.', 'error');
-    } finally {
-        // Reset button
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
@@ -209,7 +227,7 @@ function addToRecentUploads(filename, auditDate, branchNumber, priority) {
 
 
 // Store audit data for backlog
-function storeAuditData(filename, auditDate, branchNumber, description, priority) {
+function storeAuditData(filename, auditDate, branchNumber, ticketNumber, description, priority, fileContent, fileType) {
     const companyName = getCurrentCompany();
     const auditsKey = `${companyName}_audits`;
     
@@ -222,9 +240,12 @@ function storeAuditData(filename, auditDate, branchNumber, description, priority
         filename: filename,
         auditDate: auditDate,
         branchNumber: branchNumber,
+        ticketNumber: ticketNumber,
         description: description,
         status: priority,
-        uploadDate: new Date().toISOString().split('T')[0]
+        uploadDate: new Date().toISOString().split('T')[0],
+        fileContent: fileContent,
+        fileType: fileType
     };
     
     // Add to beginning of array (newest first)

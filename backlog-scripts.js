@@ -118,7 +118,7 @@ function createAuditItem(audit) {
                     <strong>${audit.filename}</strong>
                 </div>
                 <div class="audit-branch">
-                    Filial: ${audit.branchNumber}
+                    Filial: ${audit.branchNumber}${audit.ticketNumber ? ' | Chamado: ' + audit.ticketNumber : ''}
                 </div>
                 <div class="audit-description">
                     ${audit.description || 'Sem descrição'}
@@ -127,6 +127,7 @@ function createAuditItem(audit) {
             <div class="audit-meta">
                 <span class="audit-status ${audit.status}">${getStatusLabel(audit.status)}</span>
                 <div class="audit-actions">
+                    ${audit.fileContent ? `<button class="btn btn-sm btn-primary" onclick="viewFileDirectly('${audit.id}')" title="Visualizar arquivo">📄 Ver Arquivo</button>` : ''}
                     <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails('${audit.id}')">Ver Detalhes</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteAudit('${audit.id}')" title="Excluir auditoria">🗑️ Excluir</button>
                 </div>
@@ -244,6 +245,7 @@ function viewAuditDetails(auditId) {
     // Populate modal with audit data
     document.getElementById('detailCompany').textContent = audit.companyName;
     document.getElementById('detailBranch').textContent = audit.branchNumber;
+    document.getElementById('detailTicketNumber').textContent = audit.ticketNumber || 'N/A';
     document.getElementById('detailFilename').textContent = audit.filename;
     document.getElementById('detailUploadDate').textContent = formatDate(audit.uploadDate || new Date().toISOString().split('T')[0]);
     document.getElementById('detailAuditDate').textContent = formatDate(audit.auditDate);
@@ -269,6 +271,106 @@ function closeAuditDetailsModal() {
     const modal = document.getElementById('auditDetailsModal');
     modal.style.display = 'none';
     currentAuditId = null;
+}
+
+// View uploaded file from modal
+function viewUploadedFile() {
+    if (!currentAuditId) return;
+    viewFileDirectly(currentAuditId);
+}
+
+// View file directly (can be called from anywhere)
+function viewFileDirectly(auditId) {
+    const audit = allAudits.find(a => a.id === auditId);
+    if (!audit) {
+        showNotification('Auditoria não encontrada.', 'error');
+        return;
+    }
+    
+    if (!audit.fileContent) {
+        showNotification('Arquivo não disponível. Este pode ser um upload antigo.', 'warning');
+        return;
+    }
+    
+    // Open file in new window/tab
+    const newWindow = window.open();
+    if (!newWindow) {
+        showNotification('Pop-up bloqueado. Por favor, permita pop-ups para visualizar o arquivo.', 'error');
+        return;
+    }
+    
+    // Handle different file types
+    if (audit.fileType && audit.fileType.includes('pdf')) {
+        // For PDFs, embed in an iframe
+        newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${audit.filename}</title>
+                <style>
+                    body { margin: 0; padding: 0; }
+                    iframe { width: 100%; height: 100vh; border: none; }
+                </style>
+            </head>
+            <body>
+                <iframe src="${audit.fileContent}" type="application/pdf"></iframe>
+            </body>
+            </html>
+        `);
+    } else {
+        // For other file types, create a download link
+        newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${audit.filename}</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        padding: 20px; 
+                        text-align: center; 
+                        background-color: #f5f5f5;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 50px auto;
+                        background: white;
+                        padding: 30px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }
+                    h2 { color: #333; }
+                    .btn {
+                        display: inline-block;
+                        padding: 12px 24px;
+                        background-color: #007bff;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin-top: 20px;
+                    }
+                    .btn:hover {
+                        background-color: #0056b3;
+                    }
+                    .file-info {
+                        margin: 20px 0;
+                        color: #666;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h2>📄 ${audit.filename}</h2>
+                    <div class="file-info">
+                        <p>Tipo: ${audit.fileType || 'Desconhecido'}</p>
+                        <p>Data de Upload: ${formatDate(audit.uploadDate)}</p>
+                    </div>
+                    <a href="${audit.fileContent}" download="${audit.filename}" class="btn">⬇️ Download File</a>
+                </div>
+            </body>
+            </html>
+        `);
+    }
 }
 
 // Delete audit from modal
