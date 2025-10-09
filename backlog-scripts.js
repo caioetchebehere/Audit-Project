@@ -583,6 +583,34 @@ function deleteAllAudits() {
     });
 }
 
+// Clear old audits to free up space (keep only last 20 per company)
+function clearOldAudits() {
+    const companies = ['carol', 'grand-vision', 'sunglass-hut'];
+    let totalRemoved = 0;
+    
+    companies.forEach(company => {
+        const auditsKey = `${company}_audits`;
+        const companyAudits = JSON.parse(localStorage.getItem(auditsKey) || '[]');
+        
+        if (companyAudits.length > 20) {
+            const removed = companyAudits.splice(20);
+            totalRemoved += removed.length;
+            localStorage.setItem(auditsKey, JSON.stringify(companyAudits));
+        }
+    });
+    
+    if (totalRemoved > 0) {
+        showNotification(`Removidas ${totalRemoved} auditorias antigas para liberar espaço.`, 'success');
+        // Refresh the display
+        loadAllAudits();
+        filteredAudits = [...allAudits];
+        displayAudits();
+        updateStatistics();
+    } else {
+        showNotification('Nenhuma auditoria antiga encontrada para remover.', 'info');
+    }
+}
+
 // Separate function to handle the actual delete all after password validation
 function proceedWithDeleteAllAudits() {
     const totalCount = allAudits.length;

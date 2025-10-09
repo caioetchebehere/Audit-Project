@@ -109,6 +109,15 @@ async function proceedWithUpload(e, formData, file) {
     try {
         console.log('Using local storage for file upload...');
         
+        // Check file size before processing (limit to 5MB)
+        const maxFileSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxFileSize) {
+            showNotification(`File too large. Please upload files smaller than 5MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`, 'error');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+        
         // Read file as base64 for storage
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -122,14 +131,14 @@ async function proceedWithUpload(e, formData, file) {
             addToRecentUploads(file.name, auditDate, branchNumber, priority);
             console.log('Added to recent uploads');
         
-        // Update Last Audit date
-        updateLastAuditDate(auditDate);
-        console.log('Updated last audit date');
-        
-        // Update Lojas count for this company
-        updateLojasCount();
-        console.log('Updated lojas count');
-        
+            // Update Last Audit date
+            updateLastAuditDate(auditDate);
+            console.log('Updated last audit date');
+            
+            // Update Lojas count for this company
+            updateLojasCount();
+            console.log('Updated lojas count');
+            
             // Update audit status tracking for pie chart
             updateAuditStatusTracking(priority);
             console.log('Updated audit status tracking');
@@ -157,7 +166,11 @@ async function proceedWithUpload(e, formData, file) {
         
     } catch (error) {
         console.error('Local storage failed:', error);
-        showNotification('Error saving file. Please try again.', 'error');
+        if (error.name === 'QuotaExceededError') {
+            showNotification('Storage full! Please delete some old audits or use smaller files.', 'error');
+        } else {
+            showNotification('Error saving file. Please try again.', 'error');
+        }
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
@@ -251,8 +264,32 @@ function storeAuditData(filename, auditDate, branchNumber, ticketNumber, descrip
     // Add to beginning of array (newest first)
     existingAudits.unshift(newAudit);
     
-    // Store back in localStorage
-    localStorage.setItem(auditsKey, JSON.stringify(existingAudits));
+    // Limit to last 50 audits per company to prevent storage overflow
+    const maxAudits = 50;
+    if (existingAudits.length > maxAudits) {
+        // Remove oldest audits and their file content
+        const auditsToRemove = existingAudits.splice(maxAudits);
+        console.log(`Removed ${auditsToRemove.length} old audits to free up space`);
+    }
+    
+    try {
+        // Store back in localStorage
+        localStorage.setItem(auditsKey, JSON.stringify(existingAudits));
+    } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+            // If still too large, remove file content from older audits
+            console.log('Storage still full, removing file content from older audits...');
+            existingAudits.forEach((audit, index) => {
+                if (index > 10 && audit.fileContent) { // Keep file content for newest 10 audits
+                    delete audit.fileContent;
+                    delete audit.fileType;
+                }
+            });
+            localStorage.setItem(auditsKey, JSON.stringify(existingAudits));
+        } else {
+            throw error;
+        }
+    }
 }
 
 // Update Last Audit date
